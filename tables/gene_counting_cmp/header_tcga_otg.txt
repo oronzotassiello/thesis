@@ -1,0 +1,1 @@
+#GENE GermlineFreq(TCGA) TumorFreq(TCGA) GermlineFreq(OTG)
