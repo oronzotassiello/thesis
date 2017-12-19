@@ -1,0 +1,25 @@
+#!/bin/bash
+
+FOLDER=$1
+OUTF=$2
+F=$3
+AD=$4
+
+if [ ! -d "$OUTF" ]; then
+    mkdir $OUTF;
+fi
+
+f1="${OUTF}/${F}_${AD}"
+
+mkdir $f1
+
+# check the file extension
+for f in "$FOLDER"*;
+do
+    python /home/um99/rnz/vcf-parsing/main_vcfnnvrprsr.py $f \
+       -t tumor \
+       -f $F \
+       --AD $AD \
+       --AAFreq 5 \
+       --out $f1 
+done
