@@ -1,0 +1,5 @@
+computing three correlation coefficent pearson, kendall-tau, spearman
+in two ways: adding zeros for missing genes, considering only common genes
+for each average value of fisher test given by each bootsrap for different
+freq and depth (only tcga) values between pathogenic mutation and all the
+mutation without filtering
