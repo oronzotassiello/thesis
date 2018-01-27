@@ -62,6 +62,11 @@ At the end of the procedure the output we chose to obtain is in VCF (Variant Cal
 
 
 
+ANNOVAR
+
+
+As further step in the data preparation process it the variant annotation. Once the variants have been retrieved by a variant calling procedure, it is needed to enrich those variants by adding meaningful informations such as if SNV or a CNV cause protein changes and which amino acids are affected, in which functions are involved, what are the transcribed proteins, frequency at which a mutation is present in a population and many other information depending on the task to achieve. The software used to perform this crucial task in the current work is ANNOVAR. 
+ANNOVAR it is capable to functionally annotate genetic variants from a variety of genomes (human genome hg38 in our case). The program we used is table_annovar.pl to which give as input a file in VCF format containing a list of variants with reported the chromosome, the start position, the end position, the reference nucleotide and the observed one. The program it is executed with the -g option to perform a gene based annotation, at the end of the run returns a file with same format as the input plus the additional annotation information specified as input parameters in the INFO field of the VCF. The desired information in our case were specified by the following key words: refGene,cytoBand,exac03,avsnp147,dbnsfp30a (###check??). The additional field are delimited by the tags ANNOVAR_DATE and ALLELE_END, in case of multiple allele also multiple tags are placed in the same INFO field.
 
 
 ANALYSIS
