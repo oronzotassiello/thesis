@@ -1,0 +1,94 @@
+﻿INTRODUCTION
+
+
+The advent of rapid and cheap ‘next-generation’ sequencing
+technologies since 2006 has turned re-sequencing into one
+of the most popular modern genome analysis workflows. As of
+today, an incredible wealth of genomic variation within populations
+has already been detected, permitting functional annotation
+of many such variants, and it is reasonable to expect that
+this is only the beginning.
+
+
+
+
+MATERIALS AND METHODS
+
+
+Databases
+
+
+In the following work two main databases are considered. One provided by The Cancer Genome Atlas (TCGA) for the Lung Adenocarcinoma genomic data, the other provided by the 1000 Genomes Project for the control cases. Both the source were preprocesses performing a variant calling and a variant annotation resulting in a starting database for further work.
+
+
+
+
+The Cancer Genome Atlas
+
+
+The Cancer Genome Atlas (TCGA), a collaboration between the National Cancer Institute (NCI) and National Human Genome Research Institute (NHGRI), has recorded all the main genomic changes in 33 type of cancer. The TCGA dataset, 2.5 petabytes of data describing tumor tissue and matched normal tissues from more than 11,000 patients, is publically available and has been used widely by the research community. 
+From that it is taken a subset of 525 patients affected by Lung Adenocarcinoma on which it is performed firstly a variant calling using VarScan2 secondly a functional annotation of the genetic variant by ANNOVAR (###version?) using as reference genome the hg38 version.
+
+
+
+
+1000 Genome Project
+
+
+The 1000 Genome Project is the largest database publically available containing all detectable genomic variants present at least in the 1% of the population studied. Supported by the modern sequencing technologies the data collected between 2008 and 2015 resulted in a dataset composed of 2504 individuals from 26 population. The dataset used is the last version released in 2nd May 2013, on which it was performed a variant calling using VarScan2 and then functionally annotated using ANNOVAR with the hg19 reference genome.
+
+
+
+
+COSMIC Cancer Census Gene
+TODO…
+
+
+
+
+VarScan
+
+
+To the detect the variants in our genome datasets we need to perform a variant calling. A procedure aimed to retrieve all the genetic mutation and variation typically from exome data obtained by NGS (Next Generation Sequencing) platforms. In current thesis work to in order perceive this fundamental task it is used a platform independent software, developed in java, named VarScan (###cite). The version we refer to is the 2.4.0 (###check?). Using a robust heuristic and statistical algorithm it is capable to detect sequence variants and to classify them by status which can be germline, somatic or LOH (loss of heterozygosity).
+
+
+Before starting it is needed a proper data preparation step by assuring to have our data in the format required by VarScan. The file we need to build has to be in SAMTools (###cite) pileup format. To produce it we need one or more BAM (Binary Alignment Map) file, a reference sequence in FASTA format to which align the reads and the SAMTools software package. In our case the BAM file it is provided directly by TCGA (###right?), the FASTA file used is the hg19 version of the human genome downloaded from (???). A detailed procedure to obtain a proper pileup file it can be found on the web page (http://dkoboldt.github.io/varscan/using-varscan.html#pileup-howto).
+
+
+Thus two position sorted pileup files, one containing genetic information extracted from normal tissue and the other one from tumor tissue, are built. Therefore a variant calling it is executed using the following command: (###how it was executed???). Every position that satisfies a certain threshold of coverage it is compared, next if tumor matches normal and both matches the reference then calls reference, otherwise if neither  is matching the reference then calls germline. In case tumor does not match normal, a significance of allele frequency difference by Fisher's Exact Test it is computed. If the result is significant with the p-value under a given threshold and tumor matches the reference then calls somatic else in case normal is heterozygous calls LOH. If both  normal and tumor are variant but differs calls IndelFilter or Unknown. In case the difference is not significant then recompute the p-value for the combined normal and tumor read counts for each allele thus calls germline.
+
+At the end of the procedure the output we chose to obtain is in VCF (Variant Calling Format) 4.2 version (###check), a format originally born along large-scale genotyping and DNA sequencing projects, such as 1000 Genomes Project. Nowadays widely used in bioinformatics field thanks to its reduced size since only variation along with a reference genome need to be stored (###cite).  
+
+
+
+
+
+
+ANALYSIS
+
+
+In order to reduce bias and obtain a robust estimation, it is used a resampling technique such as bootstrap. Consisting in substituting the original dataset with a new one by random sampling the original one. In our case were selected for both the datasets 1000 Genomes (1kG) and TCGA a random sample of 250 patients, this random sampling were repeated for 10 times. 
+From each sampling of the TCGA dataset were extracted a list of genes classified as germline and a list of tumor genes with the respective allele frequency. Allele frequencies were computed by counting how many times a gene is mutated among the sampled individuals. At same time a list of mutated genes with its frequency were extracted from the 1kG dataset.  
+Those three lists were compared by using the Fisher exact test by comparing each couple of the previously generated lists. 
+The Fisher exact test computed by using pseudo counts, adding 1 to each mutation counting number to overcome the problem of having 0 for certain genes which were not mutated in any of the 250 sampled individuals.
+
+
+The comparisons were further subdivided considering the type of mutations included in the gene counting, such as synonymous, non-synonymous and a third class composed by all the mutations type synonymous excluded. Resulting in three different tables, one for each experiment. From those ten random sampled subsets all the obtained values, frequencies and p-values, were summarized by computing the mean and the standard deviation of the p-values.
+Obtaining so three different ranking of the mutated genes, where the top scoring genes, higher p-value, represents the most common mutated genes in cancer giving us the evidence that our data are consistent.
+Observing at the table (###ref ranking tcga only) the genes mutated with a synonymous variant shows lower p-values confirming the hypothesis that synonymous mutations are almost non influent in tumorigenesis and can have place in both normal and tumor tissues of an individual.
+Considering the table (###ref rank tcga only) where all the mutation type are considered synonymous excluded it can be observed a general increasing of the scores in addition to the presence in the top position of some notably mutated genes often related to cancer by the literature, one and the most notable example is the TP53 which functions as tumor suppressor. As such prevents the formation of cancer having a role also in preventing genome mutations.
+
+
+ 
+Comparing with 1000Genomes
+
+
+The introduction of genes from the 1kG dataset in the computation of ranking respect to the ranking made by using only the TCGA dataset cause a slight increment  of the scores associated to certain genes making them gain some positions up in the ranking. Highlighting so that there are some genes (which ones?) also involved in tumorigenesis even if they are not a direct cause. 
+
+
+
+
+Considering only pathogenic genes
+
+
+A further improving of the resulting score it is obtained by considering only the genes that were predicted by PhD-SNPg as pathogenic. It can be observed an overall increasing of the scores in table (##reftable pathogeninc minpval/tcga). As an example BRAF gene gain few position up in the ranking. On the other side considering the chart of the synonymous mutations it can be observed a moderate decrease of the scores. As a consequence disappearing of some genes from the top positions. Thus decreasing the probability of having false positives since some genes may be considered cancer related if we consider only the allelic frequency as discriminating factor.
