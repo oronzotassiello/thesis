@@ -1,0 +1,131 @@
+% Chapter Template
+
+\chapter{Materials and Methods} % Main chapter title
+
+\label{Chapter2} % Change X to a consecutive number; for referencing this chapter elsewhere, use \ref{ChapterX}
+\overfullrule=2cm
+
+% Define some commands to keep the formatting separated from the content 
+\newcommand{\keyword}[1]{\textbf{#1}}
+\newcommand{\tabhead}[1]{\textbf{#1}}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\file}[1]{\texttt{\bfseries#1}}
+\newcommand{\option}[1]{\texttt{\itshape#1}}
+
+
+%----------------------------------------------------------------------------------------
+%	SECTION 1
+%----------------------------------------------------------------------------------------
+The type of cancer we focused on is the Lung Adenocarcinoma (LUAD). Thus, to pursuing the objective of prioritizing mutated genes in this specific type of cancer it is needed to start from a reliable base of information. This base is given by one of the main freely explorable databank: The Cancer Genome Atlas (TCGA).  On one hand we need data that comes from tumor tissues to be sure to include in prioritizing process gene variations that are linked to LUAD, on the other hand it is needed a control case to differentiate and adjust scores of our gene selection by ampliate the range of possible driver genes. The control cases are furnished by the 1000 Genome Project, a concluded project collecting variants for a large number of individuals. In order to validate, measure and estimate the reliability of the our methods during the progressing work, several statistical test and metrics have been used. One phase of those is supported by the use of the COSMIC Cancer Gene Census database highlighting in which order our driver gene distribution of the computed ranks is represented respect to a wider set of genes notably implicated in cancer.
+
+\section{Databases}
+In the following work two main databases are considered. One provided by The Cancer Genome Atlas (TCGA) for the Lung Adenocarcinoma genomic data, the other provided by the 1000 Genomes Project for the control cases. Both the source were preprocesses performing a variant calling and a variant annotation resulting in a starting database for further work.
+
+\subsection{The Cancer Genome Atlas}
+The Cancer Genome Atlas (TCGA), a collaboration between the National Cancer Institute (NCI) and National Human Genome Research Institute (NHGRI), has recorded all the main genomic changes in 33 type of cancer. The TCGA dataset, 2.5 petabytes of data describing tumor tissue and matched normal tissues from more than 11,000 patients, is publically available and has been used widely by the research community. From that it is taken a subset of 525 patients affected by Lung Adenocarcinoma on which it is performed firstly a variant calling using VarScan2 secondly a functional annotation of the genetic variant by ANNOVAR (HHHversion?) using as reference genome the hg38 version.
+
+\subsection{1000 Genome Project}
+The 1000 Genome Project is the largest database publicly available containing all detectable genomic variants present at least in the 1\% of the population studied. Supported by the modern sequencing technologies the data collected between 2008 and 2015 resulted in a dataset composed of 2504 individuals from 26 population. The dataset used is the last version released in 2nd May 2013, on which it was performed a variant calling using VarScan2 and then functionally annotated using ANNOVAR with the hg19 reference genome.
+
+\subsection{COSMIC - The Cancer Gene Census}
+COSMIC, the Catalogue Of Somatic Mutations In Cancer is a web resource that collects data about the impact of somatic mutations in cancer subdivided in different projects, one of them is The Cancer Gene Census that is a constantly updated catalogue containing gene mutations that are proven to be related to different types of cancer. In which can be found two classification of somatic mutation the one containing genes that possesses a relevant documentation about their activity in cancer and that their mutations are causing a change in activity promoting an oncogenic transformation. The second classification comprise more recent discovered genes with strong indications of their role in cancer but with less or still emerging evidences.
+
+\section{Tools}
+\subsection{Variant Calling Format}
+describe vcf file and its structure
+
+\subsection{VarScan}
+To the detect the variants in our genome datasets we need to perform a variant calling. A procedure aimed to retrieve all the genetic mutation and variation typically from exome data obtained by NGS (Next Generation Sequencing) platforms. In current thesis work to in order perceive this fundamental task it is used a platform independent software, developed in java, named VarScan (HHHcite). The version we refer to is the 2.4.0 (HHHcheck?). Using a robust heuristic and statistical algorithm it is capable to detect sequence variants and to classify them by status which can be germline, somatic or LOH (loss of heterozygosity).
+
+
+Before starting it is needed a proper data preparation step by assuring to have our data in the format required by VarScan. The file we need to build has to be in SAMTools (HHHcite) pileup format. To produce it we need one or more BAM (Binary Alignment Map) file, a reference sequence in FASTA format to which align the reads and the SAMTools software package. In our case the BAM file it is provided directly by TCGA (HHHright?), the FASTA file used is the hg19 version of the human genome downloaded from (???). A detailed procedure to obtain a proper pileup file it can be found on the web page (\url{http://dkoboldt.github.io/varscan/using-varscan.html#pileup-howto}).
+
+
+Thus two position sorted pileup files, one containing genetic information extracted from normal tissue and the other one from tumor tissue, are built. Therefore a variant calling it is executed using the following command: (HHHhow it was executed???). Every position that satisfies a certain threshold of coverage it is compared, next if tumor matches normal and both matches the reference then calls reference, otherwise if neither  is matching the reference then calls germline. In case tumor does not match normal, a significance of allele frequency difference by Fisher's Exact Test it is computed. If the result is significant with the p-value under a given threshold and tumor matches the reference then calls somatic else in case normal is heterozygous calls LOH. If both  normal and tumor are variant but differs calls IndelFilter or Unknown. In case the difference is not significant then recompute the p-value for the combined normal and tumor read counts for each allele thus calls germline.
+
+At the end of the procedure the output we chose to obtain is in VCF (Variant Calling Format) 4.2 version (HHHcheck), a format originally born along large-scale genotyping and DNA sequencing projects, such as 1000 Genomes Project. Nowadays widely used in bioinformatics field thanks to its reduced size since only variation along with a reference genome need to be stored (HHHcite).  
+
+
+\subsection{ANNOVAR}
+As further step in the data preparation process it the variant annotation. Once the variants have been retrieved by a variant calling procedure, it is needed to enrich those variants by adding meaningful informations such as if SNV or a CNV cause protein changes and which amino acids are affected, in which functions are involved, what are the transcribed proteins, frequency at which a mutation is present in a population and many other information depending on the task to achieve. The software used to perform this crucial task in the current work is ANNOVAR. 
+ANNOVAR it is capable to functionally annotate genetic variants from a variety of genomes (human genome hg38 in our case). The program we used is \code{table\_annovar.pl} to which give as input a file in VCF format containing a list of variants with reported the chromosome, the start position, the end position, the reference nucleotide and the observed one. The program it is executed with the -g option to perform a gene based annotation, at the end of the run returns a file with same format as the input plus the additional annotation information specified as input parameters in the INFO field of the VCF. The desired information in our case were specified by the following key words: refGene,cytoBand,exac03,avsnp147,dbnsfp30a (HHHcheck??). The additional field are delimited by the tags \code{ANNOVAR\_DATE} and \code{ALLELE\_END}, in case of multiple allele also multiple tags are placed in the same INFO field.
+
+
+\subsection{PhD-SNPg}
+When treating diseases a key challenge is knowing whether or not certain variants in the target genome are associated to diseases. Having a knowledge on how a genome is composed and what are the functional effects of its variants can lead to an improvement of diagnostic and treatment strategies. PhD-SNPg (HHHcite) is a binary classifier based on Gradient Boosting Algorithm, trained using only comparative information in the form of the conservation score computed from multiple sequence alignments. It is capable to predict the impact of a single nucleotide variant in both coding and non-coding regions of a human gnome. It comes in a web based version and a locally executable lightweight tool. Takes as input a comma separated value (CSV) file or a VCF file containing lines composed by the chromosome, its position, the reference and alternative alleles. The genomic coordinates in input can be from both hg19 and h38 human genome assemblies. Basing its decisional method on data extracted from the UCSC (University of California, Santa Cruz) that have to be downloaded on the machine for the offline version and automatically retrieved for the web server, it returns a file alike the input provided with the addition of predictions information. The predictions are characterized mainly by a probabilistic score between 0 and 1 that is interpreted as Pathogenic if greater than 0.5 and Benign if lower. Additionally the false discovery rate (FDR), the PhyloP100 score in the mutated position and its average computed on a five nucleotide sized window. The prediction can be made only for regions to which a conservation score it is available.
+
+
+
+\section{CONTRAST RANK}
+A method that based on the comparison of different exome sequencing data is aimed to recognize putative impaired genes in cancer. Facing the difficulties of distinguish the particular gene variations, named drives, that are known to be associate to development and progression of cancer from all the other constituting a mutations background, always present in a genome. Predictions of cancer drive mutation are commonly based on the conservation analysis of mutated sites. Identifying cancer drive genes by comparing frequencies of mutations in a gene with the mutation frequency of other genes in the same tumor. Considered the heterogeneity of mutational processes within individuals and cancer types many apparently unrelated genes can be falsely identified as such.   
+ContrastRank provides a different probabilistic approach to identify putative cancer genes. It is based on the estimation of the variation rates of genes in different datasets, in our case in the both previously presented TCGA (for the Lung Adenocarcinoma particularly) and 1000 Genomes databases. Having the possibility with this method to assign a score to each genome that discriminate normal from tumor samples, it can be also used to compute a global score for an individual about the possibility to develop an adenocarcinoma.
+Accordingly to the literature (HHHcite) we assume that rare variants are more inclined to have functional effects in contrast to common variants and among the rare variants a major impact is given by non-synonymous single nucleotide variants.
+
+
+\subsection{Data preparation, filtering and evaluations}
+
+\subsubsection{TCGA}
+In the current thesis work we focus on a particular type of cancer: the lung adenocarcinoma (LUAD). Therefore form the prolific TCGA we downloaded the exomic data collected from a number of 525 individuals affected by LUAD (HHHcheck and insert data and version of the db). The raw data coming from TCGA have been firstly reformatted by a variant calling procedure followed by a functional annotation procedure as previously described (HHHref to chap/sections).
+The VCF file obtained at this point have been parsed by a custom python script in order to filter out the unwanted informations and obtaining smaller files to handle. The filters were applied on different parameters and ANNOVAR fields. The population frequency were set at three different values 5\%, 1\% and 0.5\% by selecting as comparison the minimum frequency of the three available in the annotated input file (\code{gnomAD\_genome\_ALL, ExAC\_ALL, 1000g2015aug\_all}). The depth read of the alternative allele at 5x and 10x. The allelic frequency fixed at 5\%. All the filters were applied on the tumor column of the file, obtaining six subsets to which apply our pipeline. 
+Subsequently to a preliminary analysis it were decided to assume a mutation as somatic when the allele matched the reference in normal tissue (0/0) and did not in the tumor tissue (0/N with N representing the position of the allele it refers to, in majority N = 1). Every other genotype case in mutations were considered as germline. This information were encoded by adding a column (with two possible values germline or somatic) in each file.
+From all the six subsets we extracted three lists for each class of mutation containing the counting of all the genes within the respective subset:
+- germline genes of type nonsynonymous SNV
+- tumor genes (every gene) of type nonsynonymous SNV
+- germline genes of any type but synonymous SNV
+- tumor genes of any type but synonymous SNV
+- somatic genes of type nonsynonymous SNV
+- somatic genes of any type but synonymous SNV
+
+
+At this point a first ranking were produced by merging the lists of tumor and germline genes taking only common genes and using as score the difference between the count of the two. Therefore to have a measure of the reliability of this approach each experiment it were compared to each other by computing three different correlation coefficients: Spearman, Pearson and Kendall Tau. Since all the three methods requires that the input sequences have to be of the same size and given that due to the different filters applied for each experiment the number of genes may differ among the six subsets, two different computation of each coefficient were made: first by adding zeros as many as the length of the longest list to the shorter list, second by considering only common genes between the experiments. All the results are reported in table (HHHref).
+
+
+\subsubsection{1000 Genomes Project}
+The larger dataset by the 1000 Genomes Project it is used as control case, considered as non-tumor population against the tumor population by TCGA. Therefore assuming all mutations as germline. Provided that the exomic data coming from 1000 Genomes are in a different format respect to the TCGA dataset, the information are grouped by chromosome were each file contains a common part among all the individuals plus a column for each individuals containing specific genomic data. Thus, it is needed an additional step consisting in grouping the information by individuals, in order to apply the same procedure as previously described.
+After that, mutated genes are retrieved by selecting lines having everything different from zero and null value in the ANNOVAR info field as GT value. Next, the frequency of each mutation among the individuals is computed.
+Producing at the end two lists for each subset filtered with three different population frequency values (5\%, 1\%, 0.5\%), one counting the non-synonymous variants, the other counting any variants synonymous excluded.
+
+
+\subsection{Bootstrapping and first gene prioritization}
+Bearing in mind that at base of the following statistical approach there is the idea that rare mutated genes within normal samples are more likely to be classified as cancer driver genes if highly mutated in tumor samples. We proceed to build a method for gene prioritization score.
+
+
+In order to reduce bias and obtain a robust estimation, it is used a re-sampling technique such as bootstrap. Consisting in substituting the original dataset with a new one by random sampling the original one. In our case were selected for both the datasets 1000 Genomes (1kG) and TCGA a random sample of 250 patients, this random sampling were repeated for 10 times.
+ 
+From each re-sampled TCGA subset were extracted a list of genes classified as germline and a list of tumor genes with the respective allele frequency within the dataset. Allele frequencies were computed by counting how many times a gene is mutated among the sampled individuals. At same time a list of mutated genes with their frequency were extracted from each re-sampled 1kG subset. This procedure were repeated for each variation class: synonymous, non-synonymous and a third class composed by all the mutation type synonymous excluded.  
+
+
+Those three preliminary ranks (1000 Genome "germline" genes, TCGA normal and tumor genes) were used to compute a Fisher exact test with the aim of using such statistical evaluation not as an absolute measure representing the distribution of driver mutations in cancer, yet as a scoring measure within the dataset determining a gene ranking. 
+
+
+The Fisher exact test were run for each couple of the previously generated lists times the number of bootstrapped subsets times the three mutation classes (syn, non-syn, all-but-syn). In the computation were used pseudo counts, adding 1 to each mutation counting number to overcome the problem of having 0 for certain genes which were not mutated in any of the 250 sampled individuals. Moreover, assumed that those gene distributions are not symmetrical it is choose to run a one-tailed Fisher exact test by considering significant the greater part of distribution. In other words to give more significance to genes with larger mutation rate. The contingency table needed for the Fisher's it were built in a table formatted file with the following columns: Gene identifier, 1kG mutated genes, 1kG non mutated genes, TCGA normal mutated genes, TCGA normal non mutated genes, TCGA tumor mutated genes, TCGA tumor non mutated genes. At the end were produced odds ratio and p-value for each gene in the following compared distributions:
+- 1000 Genomes and TCGA tumor genes
+- 1000 Genomes and TCGA normal genes
+- TCGA normal genes and TCGA tumor genes
+
+
+Those computations resulting in three different tables, were repeated for each experiment. Thus from the ten random sampled subsets all the obtained values, frequencies odds-ratios and p-values, were summarized in a single table (HHHref table) by computing the mean and the standard deviation (only for p-values). The p-values are presented in the form of -log10 for readability reasons.
+
+
+Obtaining so three different ranking of the mutated genes, where the top scoring genes, higher p-value, represents the most common mutated genes in cancer giving us the evidence that our data are consistent. 
+A further ranking is produced by taking into account the mutations in normal and tumor tissue from TCGA and all the mutated genes in 1kG. Practically realized by merging and taking the minimum p-value of the common genes in the two ranks, one containing genes from 1000 Genomes and TCGA tumor genes the other containing only TCGA normal and tumor genes. The resulting table it is chose as baseline of subsequent analysis. 
+
+
+
+\subsection{Introducing predictions for a refined gene prioritization}
+When computing the previous ranks only allelic frequency it were considered as a discriminating factor to decide whether a gene it can be classified as driver. Leaving the possibility to include non significant genes. Therefore to improve the gene prioritization we retrieved the causative genes by mean of a predictor such as PhD-SNPg.  
+The predictions were made for each mutation present at least one time in the whole TCGA database identified as unique by the first four columns of each VCF like file (chromosome, position, reference allele, alternative allele). The resulting predictions computed by PhD-SNPg were stored in a file where for each mutation prediction score are provided plus a label “Pathogenic” or “Benign” depending on the score. Same procedure repeated for the 1000 Genomes dataset.
+
+
+Once obtained the predictions and filtered out only pathogenic mutations from each individual, a similar as previously described bootstrap analysis is performed. 
+Consequently a new rank based on the minimum p-value between the two preliminary ranks of a mutation it is produced. Where the two preliminary ranks are the sorted p-value distributions  given by applying the Fisher exact test on a contingency matrix build using 1000 Genome gene counts (mutated and not mutated) plus TCGA tumoral gene counts (mutated and not mutated)  and  on another contingency table build by using TCGA tumoral and normal gene counts (mutated and not mutated).
+
+
+In order to test the strength of the adopted method it were computed three different correlation coefficients (Pearson, Kendall Tau and Spearman) by comparing each ranking produced with and without the PhD-SNPg predictions.
+
+
+A further evaluation test is made by comparing all the produced ranking tables against the COSMIC Cancer Gene Census (CGC) database. For each rank list produced for all the experiment at different filtering parameters and for each putative genes within the rank it is computed a contingency matrix by considering if a gene is present or not in the CGC database and in case it is present with which p-value threshold. In this manner it is possible to discriminate how many genes of our selected genes are also present in the CGC database and how many of them with a significant p-value. Hence having a reliable measure on how significant are the gene mutations scored and their proof to be effectively related to cancer, since the trustability of the CGC database. A contingency table is built for each experiment by considering the number of genes that are also in CGC and over a given p-value threshold, the number of genes that are also in CGC and under a given threshold, the number of genes that are out of CGC and over a given p-value threshold, the number of genes that are out of CGC and under a given p-value threshold. Therefore a one-tailed Fisher exact test it is executed by giving us a measure on how accurate respect to the cancer literature can be considered the produced ranking. All the results are reported in table (HHHref table).
+
+
+
+\subsection{Distribution comparison with top scoring genes}

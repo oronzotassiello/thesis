@@ -23,10 +23,10 @@
 %----------------------------------------------------------------------------------------
 
 \documentclass[
-11pt, % The default document font size, options: 10pt, 11pt, 12pt
-%oneside, % Two side (alternating margins) for binding by default, uncomment to switch to one side
+12pt, % The default document font size, options: 10pt, 11pt, 12pt
+oneside, % Two side (alternating margins) for binding by default, uncomment to switch to one side
 english, % ngerman for German
-singlespacing, % Single line spacing, alternatives: onehalfspacing or doublespacing
+onehalfspacing,%singlespacing, % Single line spacing, alternatives: onehalfspacing or doublespacing
 %draft, % Uncomment to enable draft mode (no pictures, no links, overfull hboxes indicated)
 %nolistspacing, % If the document is onehalfspacing or doublespacing, uncomment this to set spacing in lists to single
 %liststotoc, % Uncomment to add the list of figures/tables/etc to the table of contents
@@ -45,7 +45,7 @@ headsepline, % Uncomment to get a line under the header
 
 \usepackage[backend=bibtex,style=authoryear,natbib=true]{biblatex} % Use the bibtex backend with the authoryear citation style (which resembles APA)
 
-\addbibresource{example.bib} % The filename of the bibliography
+\addbibresource{biobilography.bib} % The filename of the bibliography
 
 \usepackage[autostyle=true]{csquotes} % Required to generate language-dependent quotes in the bibliography
 
@@ -55,20 +55,20 @@ headsepline, % Uncomment to get a line under the header
 %----------------------------------------------------------------------------------------
 
 \geometry{
-	paper=a4paper, % Change to letterpaper for US letter
-	inner=2.5cm, % Inner margin
-	outer=3.8cm, % Outer margin
-	bindingoffset=.5cm, % Binding offset
-	top=1.5cm, % Top margin
-	bottom=1.5cm, % Bottom margin
-	%showframe, % Uncomment to show how the type block is set on the page
+    paper=a4paper, % Change to letterpaper for US letter
+    inner=2.5cm, % Inner margin
+    outer=3.8cm, % Outer margin
+    bindingoffset=.5cm, % Binding offset
+    top=1.5cm, % Top margin
+    bottom=1.5cm, % Bottom margin
+    %showframe, % Uncomment to show how the type block is set on the page
 }
 
 %----------------------------------------------------------------------------------------
 %	THESIS INFORMATION
 %----------------------------------------------------------------------------------------
 
-\thesistitle{Heterogeneity in mutational landscape in lung adenocarcinoma} % Your thesis title, this is used in the title and abstract, print it elsewhere with \ttitle
+\thesistitle{Computational methods for scoring genomes of Lung Adenocarcinoma} % Your thesis title, this is used in the title and abstract, print it elsewhere with \ttitle
 \supervisor{Dr. Emidio \textsc{Capriotti}} % Your supervisor's name, this is used in the title page, print it elsewhere with \supname
 \examiner{} % Your examiner's name, this is not currently used anywhere in the template, print it elsewhere with \examname
 \degree{Thesis in Bioinformatics} % Your degree name, this is used in the title page and abstract, print it elsewhere with \degreename
@@ -152,37 +152,37 @@ headsepline, % Uncomment to get a line under the header
 %	DECLARATION PAGE
 %----------------------------------------------------------------------------------------
 
-\begin{declaration}
-\addchaptertocentry{\authorshipname} % Add the declaration to the table of contents
-\noindent I, \authorname, declare that this thesis titled, \enquote{\ttitle} and the work presented in it are my own. I confirm that:
+%\begin{declaration}
+%\addchaptertocentry{\authorshipname} % Add the declaration to the table of contents
+%\noindent I, \authorname, declare that this thesis titled, \enquote{\ttitle} and the work presented in it are my own. I confirm that:
+%
+%\begin{itemize} 
+%\item This work was done wholly or mainly while in candidature for a research degree at this University.
+%\item Where any part of this thesis has previously been submitted for a degree or any other qualification at this University or any other institution, this has been clearly stated.
+%\item Where I have consulted the published work of others, this is always clearly attributed.
+%\item Where I have quoted from the work of others, the source is always given. With the exception of such quotations, this thesis is entirely my own work.
+%\item I have acknowledged all main sources of help.
+%\item Where the thesis is based on work done by myself jointly with others, I have made clear exactly what was done by others and what I have contributed myself.\\
+%\end{itemize}
+% 
+%\noindent Signed:\\
+%\rule[0.5em]{25em}{0.5pt} % This prints a line for the signature
+% 
+%\noindent Date:\\
+%\rule[0.5em]{25em}{0.5pt} % This prints a line to write the date
+%\end{declaration}
 
-\begin{itemize} 
-\item This work was done wholly or mainly while in candidature for a research degree at this University.
-\item Where any part of this thesis has previously been submitted for a degree or any other qualification at this University or any other institution, this has been clearly stated.
-\item Where I have consulted the published work of others, this is always clearly attributed.
-\item Where I have quoted from the work of others, the source is always given. With the exception of such quotations, this thesis is entirely my own work.
-\item I have acknowledged all main sources of help.
-\item Where the thesis is based on work done by myself jointly with others, I have made clear exactly what was done by others and what I have contributed myself.\\
-\end{itemize}
- 
-\noindent Signed:\\
-\rule[0.5em]{25em}{0.5pt} % This prints a line for the signature
- 
-\noindent Date:\\
-\rule[0.5em]{25em}{0.5pt} % This prints a line to write the date
-\end{declaration}
-
-\cleardoublepage
+%\cleardoublepage
 
 %----------------------------------------------------------------------------------------
 %	QUOTATION PAGE
 %----------------------------------------------------------------------------------------
 
-\vspace*{0.2\textheight}
-
-\noindent\enquote{\itshape Thanks to my solid academic training, today I can write hundreds of words on virtually any topic without possessing a shred of information, which is how I got a good job in journalism.}\bigbreak
-
-\hfill Dave Barry
+%\vspace*{0.2\textheight}
+%
+%\noindent\enquote{\itshape Thanks to my solid academic training, today I can write hundreds of words on virtually any topic without possessing a shred of information, which is how I got a good job in journalism.}\bigbreak
+%
+%\hfill Dave Barry
 
 %----------------------------------------------------------------------------------------
 %	ABSTRACT PAGE
@@ -190,17 +190,23 @@ headsepline, % Uncomment to get a line under the header
 
 \begin{abstract}
 \addchaptertocentry{\abstractname} % Add the abstract to the table of contents
-The Thesis Abstract is written here (and usually kept to just this page). The page is kept centered vertically so can expand into the blank space above the title too\ldots
+Cancer is a genetic disease resulting from an uncontrolled division of cells. At a molecular level, the disorder can be promoted by a series of genetic variants occurring in genes involved in important cellular functions such as replication, apoptosis and DNA reparation. Among all the genetic variants, only a small fraction of them are responsible for the insurgence and progression of the disease (TISSUE-LUNG?). For this reason, the early determination of the cancer-causing variants is a hot topic in molecular biology and genomic medicine.
+
+During the last few years, the improvements of DNA sequencing technologies allowed to collect a huge amount of genomic data, which are essential for studying the relationship between genotype and phenotype. In particular, national and international consortium such as The Cancer Genome Atlas consortium (https://tcga-data.nci.nih.gov/) and the International Cancer Genome Consortium (http://icgc.org/) collected the genomic data from thousands cancer samples and their matching normal tissues.
+
+In the project of my master thesis, we focused on the analysis of the genomes of Lung Adenocarcinoma. Lung Adenocarcinoma is a pulmonary disease characterized by the formation of new glands, alveolar ducts and a significant production of mucus. In this project, we developed a computational approach for scoring the cancer genome, which combines a gene prioritization algorithm and a machine learning method for predicting deleterious single nucleotide variants. The new approach is adopted for analyzing data from the exoms of tumors (Lung Adenocarcinoma) and normal cells. Results are compared with those obtained from the analysis of genomes from healthy individuals made available by the 1000 Genomes Consortium (http://www.internationalgenome.org/). The project foresees future developments such as the implementation of a mutation/gene-based score which correlates with the survival rates of the patients. 
+
+The project adds to the development of new computational methods for the diagnosis of lung adenocarcinoma, possibly identifying causative genetic variations. 
 \end{abstract}
 
 %----------------------------------------------------------------------------------------
 %	ACKNOWLEDGEMENTS
 %----------------------------------------------------------------------------------------
 
-\begin{acknowledgements}
-\addchaptertocentry{\acknowledgementname} % Add the acknowledgements to the table of contents
-The acknowledgments and the people to thank go here, don't forget to include your project advisor\ldots
-\end{acknowledgements}
+%\begin{acknowledgements}
+%\addchaptertocentry{\acknowledgementname} % Add the acknowledgements to the table of contents
+%The acknowledgments and the people to thank go here, don't forget to include your project advisor\ldots
+%\end{acknowledgements}
 
 %----------------------------------------------------------------------------------------
 %	LIST OF CONTENTS/FIGURES/TABLES PAGES
@@ -232,36 +238,36 @@ The acknowledgments and the people to thank go here, don't forget to include you
 %	PHYSICAL CONSTANTS/OTHER DEFINITIONS
 %----------------------------------------------------------------------------------------
 
-\begin{constants}{lr@{${}={}$}l} % The list of physical constants is a three column table
-
-% The \SI{}{} command is provided by the siunitx package, see its documentation for instructions on how to use it
-
-Speed of Light & $c_{0}$ & \SI{2.99792458e8}{\meter\per\second} (exact)\\
-%Constant Name & $Symbol$ & $Constant Value$ with units\\
-
-\end{constants}
+%\begin{constants}{lr@{${}={}$}l} % The list of physical constants is a three column table
+%
+%% The \SI{}{} command is provided by the siunitx package, see its documentation for instructions on how to use it
+%
+%Speed of Light & $c_{0}$ & \SI{2.99792458e8}{\meter\per\second} (exact)\\
+%%Constant Name & $Symbol$ & $Constant Value$ with units\\
+%
+%\end{constants}
 
 %----------------------------------------------------------------------------------------
 %	SYMBOLS
 %----------------------------------------------------------------------------------------
 
-\begin{symbols}{lll} % Include a list of Symbols (a three column table)
-
-$a$ & distance & \si{\meter} \\
-$P$ & power & \si{\watt} (\si{\joule\per\second}) \\
-%Symbol & Name & Unit \\
-
-\addlinespace % Gap to separate the Roman symbols from the Greek
-
-$\omega$ & angular frequency & \si{\radian} \\
-
-\end{symbols}
+%\begin{symbols}{lll} % Include a list of Symbols (a three column table)
+%
+%$a$ & distance & \si{\meter} \\
+%$P$ & power & \si{\watt} (\si{\joule\per\second}) \\
+%%Symbol & Name & Unit \\
+%
+%\addlinespace % Gap to separate the Roman symbols from the Greek
+%
+%$\omega$ & angular frequency & \si{\radian} \\
+%
+%\end{symbols}
 
 %----------------------------------------------------------------------------------------
 %	DEDICATION
 %----------------------------------------------------------------------------------------
 
-\dedicatory{For/Dedicated to/To my\ldots} 
+%\dedicatory{For/Dedicated to/To my\ldots} 
 
 %----------------------------------------------------------------------------------------
 %	THESIS CONTENT - CHAPTERS
@@ -274,7 +280,7 @@ $\omega$ & angular frequency & \si{\radian} \\
 % Include the chapters of the thesis as separate files from the Chapters folder
 % Uncomment the lines as you write the chapters
 
-\include{Chapters/Chapter1}
+\include{Chapters/Methods}
 %\include{Chapters/Chapter2} 
 %\include{Chapters/Chapter3}
 %\include{Chapters/Chapter4} 
@@ -289,7 +295,7 @@ $\omega$ & angular frequency & \si{\radian} \\
 % Include the appendices of the thesis as separate files from the Appendices folder
 % Uncomment the lines as you write the Appendices
 
-\include{Appendices/AppendixA}
+%\include{Appendices/AppendixA}
 %\include{Appendices/AppendixB}
 %\include{Appendices/AppendixC}
 
