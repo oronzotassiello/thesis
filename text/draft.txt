@@ -69,17 +69,79 @@ As further step in the data preparation process it the variant annotation. Once 
 ANNOVAR it is capable to functionally annotate genetic variants from a variety of genomes (human genome hg38 in our case). The program we used is table_annovar.pl to which give as input a file in VCF format containing a list of variants with reported the chromosome, the start position, the end position, the reference nucleotide and the observed one. The program it is executed with the -g option to perform a gene based annotation, at the end of the run returns a file with same format as the input plus the additional annotation information specified as input parameters in the INFO field of the VCF. The desired information in our case were specified by the following key words: refGene,cytoBand,exac03,avsnp147,dbnsfp30a (###check??). The additional field are delimited by the tags ANNOVAR_DATE and ALLELE_END, in case of multiple allele also multiple tags are placed in the same INFO field.
 
 
+
+
+PhD-SNPg
+
+
+When treating diseases a key challenge is knowing whether or not certain variants in the target genome are associated to diseases. Having a knowledge on how a genome is composed and what are the functional effects of its variants can lead to an improvement of diagnostic and treatment strategies. PhD-SNPg (###cite) is a binary classifier based on Gradient Boosting Algorithm, trained using only comparative information in the form of the conservation score computed from multiple sequence alignments. It is capable to predict the impact of a single nucleotide variant in both coding and non-coding regions of a human gnome. It comes in a web based version and a locally executable lightweight tool. Takes as input a comma separated value (CSV) file or a VCF file containing lines composed by the chromosome, its position, the reference and alternative alleles. The genomic coordinates in input can be from both hg19 and h38 human genome assemblies. Basing its decisional method on data extracted from the UCSC (University of California, Santa Cruz) that have to be downloaded on the machine for the offline version and automatically retrieved for the web server, it returns a file alike the input provided with the addition of predictions information. The predictions are characterized mainly by a probabilistic score between 0 and 1 that is interpreted as Pathogenic if greater then 0.5 and Benign if lower. Additionally the false discovery rate (FDR), the PhyloP100 score in the mutated position and its average computed on a five nucleotide sized window. The prediction can be made only for regions to which a conservation score it is available.
+
+
+
+CONTRAST RANK
+
+A method that based on the comparison of different exome sequencing data is aimed to recognize putative impaired genes in cancer. Facing the difficulties of distinguish the particular gene variations, named drives, that are known to be associate to development and progression of cancer from all the other constituting a mutations background, always present in a genome. Predictions of cancer drive mutation are commonly based on the conservation analysis of mutated sites. Identifying cancer drive genes by comparing frequencies of mutations in a gene with the mutation frequency of other genes in the same tumor. Considered the heterogeneity of mutational processes within individuals and cancer types many apparently unrelated genes can be falsely identified as such.   
+ContrastRank provides a different probabilistic approach to identify putative cancer genes. It is based on the estimation of the variation rates of genes in different datasets, in our case in the both previously presented TCGA (for the Lung Adenocarcinoma particularly) and 1000 Genomes databases. Having the possibility with this method to assign a score to each genome that discriminate normal from tumor samples, it can be also used to compute a global score for an individual about the possibility to develop an adenocarcinoma.
+Accordingly to the literature (###cite) we assume that rare variants are more incline to have functional effects in contrast to common variants and among the rare variants a major impact is given by non-synonymous single nucleotide variants.
+
+
+
+Data preparation, filtering and evaluations
+TCGA
+
+In the current thesis work we focus on a particular type of cancer: the lung adenocarcinoma (LUAD). Therefore form the prolific TCGA we downloaded the exomic data collected from a number of 525 individuals affected by LUAD (###check and insert data and version of the db). The raw data coming from TCGA have been firstly reformatted by a variant calling procedure followed by a functional annotation procedure as previously described (###ref to chap/sections).
+The VCF file obtained at this point have been parsed by a custom python script in order to filter out the unwanted informations and obtaining smaller files to handle. The filters were applied on different parameters and ANNOVAR fields. The population frequency were set at three different values 5%, 1% and 0.5% by selecting as comparison the minimum frequency of the three available in the annotated input file (gnomAD_genome_ALL, ExAC_ALL, 1000g2015aug_all). The depth read of the alternative allele at 5x and 10x. The allelic frequency fixed at 5%. All the filters were applied on the tumor column of the file, obtaining six subsets to which apply our pipeline. 
+Subsequently to a preliminary analysis it were decided to assume a mutation as somatic when the allele matched the reference in normal tissue (0/0) and did not in the tumor tissue (0/N with N representing the position of the allele it refers to, in majority N = 1). Every other genotype case in mutations were considered as germline. This information were encoded by adding a column (with two possible values germline or somatic) in each file.
+From all the six subsets we extracted three lists for each class of mutation containing the counting of all the genes within the respective subset:
+- germline genes of type non-synonymous SNV
+- tumor genes (every gene) of type non-synonymous SNV
+- germline genes of any type but synonymous SNV
+- tumor genes of any type but synonymous SNV
+- somatic genes of type non-synonymous SNV
+- somatic genes of any type but synonymous SNV
+
+At this point a first ranking were produced by merging the lists of tumor and germline genes taking only common genes and using as score the difference between the count of the two. Therefore to have a measure of the reliability of this approach each experiment it were compared to each other by computing three different correlation coefficients: Spearman, Pearson and Kendall Tau. Since all the three methods requires that the input sequences have to be of the same size and given that due to the different filters applied for each experiment the number of genes may differ among the six subsets, two different computation of each coefficient were made: first by adding zeros as many as the length of the longest list to the shorter list, second by considering only common genes between the experiments. All the results are reported in table (###ref).
+
+
+1000 Genomes
+
+The larger dataset by the 1000 Genomes Project it is used as control case, considered as non-tumor population against the tumor population by TCGA. Therefore assuming all mutations as germline. Provided that the exomic data coming from 1000 Genomes are in a different format respect to the TCGA dataset, the information are grouped by chromosome were each file contains a common part among all the individuals plus a column for each individuals containing specific genomic data. Thus, it is needed an additional step consisting in grouping the information by individuals, in order to apply the same procedure as previously described.
+After that, mutated genes are retrieved by selecting lines having everything different from zero and null value in the ANNOVAR info field as GT value. Next, the frequency of each mutation among the individuals is computed.
+Producing at the end two lists for each subset filtered with three different population frequency values (5%, 1%, 0.5%), one counting the non-synonymous variants, the other counting any variants synonymous excluded.
+
+
+
+
 ANALYSIS
 
+Comparisons and Bootstrapping 
 
-In order to reduce bias and obtain a robust estimation, it is used a resampling technique such as bootstrap. Consisting in substituting the original dataset with a new one by random sampling the original one. In our case were selected for both the datasets 1000 Genomes (1kG) and TCGA a random sample of 250 patients, this random sampling were repeated for 10 times. 
-From each sampling of the TCGA dataset were extracted a list of genes classified as germline and a list of tumor genes with the respective allele frequency. Allele frequencies were computed by counting how many times a gene is mutated among the sampled individuals. At same time a list of mutated genes with its frequency were extracted from the 1kG dataset.  
-Those three lists were compared by using the Fisher exact test by comparing each couple of the previously generated lists. 
-The Fisher exact test computed by using pseudo counts, adding 1 to each mutation counting number to overcome the problem of having 0 for certain genes which were not mutated in any of the 250 sampled individuals.
+Bearing in mind that at base of the following statistical approach there is the idea that rare mutated genes within normal samples are more likely to be classified as cancer drive genes if highly mutated in tumor samples. We proceed to build a method for gene prioritization score.
 
+In order to reduce bias and obtain a robust estimation, it is used a re-sampling technique such as bootstrap. Consisting in substituting the original dataset with a new one by random sampling the original one. In our case were selected for both the datasets 1000 Genomes (1kG) and TCGA a random sample of 250 patients, this random sampling were repeated for 10 times.
+ 
+From each re-sampled TCGA subset were extracted a list of genes classified as germline and a list of tumor genes with the respective allele frequency within the dataset. Allele frequencies were computed by counting how many times a gene is mutated among the sampled individuals. At same time a list of mutated genes with their frequency were extracted from each re-sampled 1kG subset. This procedure were repeated for each variation class: synonymous, non-synonymous and a third class composed by all the mutation type synonymous excluded.  
 
-The comparisons were further subdivided considering the type of mutations included in the gene counting, such as synonymous, non-synonymous and a third class composed by all the mutations type synonymous excluded. Resulting in three different tables, one for each experiment. From those ten random sampled subsets all the obtained values, frequencies and p-values, were summarized by computing the mean and the standard deviation of the p-values.
+Those three preliminary ranks (1000 Genome "germline" genes, TCGA normal and tumor genes) were used to compute a Fisher exact test with the aim of using such statistical evaluation not as an absolute measure representing the distribution of driver mutations in cancer, yet as a scoring measure within the dataset determining a gene ranking. 
+
+The Fisher exact test were run for each couple of the previously generated lists times the number of bootstrapped subsets times the three mutation classes (syn, non-syn, all-but-syn). In the computation were used pseudo counts, adding 1 to each mutation counting number to overcome the problem of having 0 for certain genes which were not mutated in any of the 250 sampled individuals. Moreover, assumed that those gene distributions are not symmetrical it is choose to run a on-tailed Fisher exact test by considering significant the greater part of distribution. In other words to give more significance to genes with larger mutation rate. The contingency table needed for the Fisher's it were built in a table formatted file with the following columns: Gene identifier, 1kG mutated genes, 1kG non mutated genes, TCGA normal mutated genes, TCGA normal non mutated genes, TCGA tumor mutated genes, TCGA tumor non mutated genes. At the end were produced odds ratio and p-value for each gene in the following compared distributions:
+- 1000 Genomes and TCGA tumor genes
+- 1000 Genomes and TCGA normal genes
+- TCGA normal genes and TCGA tumor genes
+
+Those computations resulting in three different tables, were repeated for each experiment. Thus from the ten random sampled subsets all the obtained values, frequencies odds-ratios and p-values, were summarized by computing the mean and the standard deviation (only for p-values). All the p-value are presented in the form of -log10 for readability reasons.
+
 Obtaining so three different ranking of the mutated genes, where the top scoring genes, higher p-value, represents the most common mutated genes in cancer giving us the evidence that our data are consistent.
+
+
+
+The comparisons were further subdivided iconsidering the type of mutations included in the gene counting, such as synonymous, non-synonymous and a third class composed by all the mutations type synonymous excluded. 
+
+
+
+DISCUSSION
+
+
 Observing at the table (###ref ranking tcga only) the genes mutated with a synonymous variant shows lower p-values confirming the hypothesis that synonymous mutations are almost non influent in tumorigenesis and can have place in both normal and tumor tissues of an individual.
 Considering the table (###ref rank tcga only) where all the mutation type are considered synonymous excluded it can be observed a general increasing of the scores in addition to the presence in the top position of some notably mutated genes often related to cancer by the literature, one and the most notable example is the TP53 which functions as tumor suppressor. As such prevents the formation of cancer having a role also in preventing genome mutations.
 
